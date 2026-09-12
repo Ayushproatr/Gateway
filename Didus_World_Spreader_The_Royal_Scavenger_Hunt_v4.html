@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#030208">
+<title>For My Princess — The Royal Transmission</title>
+<style>
+:root{
+ --bg:#030208;--ink:#f7f1ff;--muted:#aaa0bb;--gold:#ffd978;--violet:#9d6cff;
+ --pink:#ff7fc8;--cyan:#7ee7ff;--glass:rgba(255,255,255,.055);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+body{touch-action:manipulation}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#stars{z-index:0}.screen{position:absolute;inset:0;z-index:2;display:none;overflow:hidden}
+.screen.active{display:block}
+.center{height:100%;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center}
+.wrap{width:min(900px,100%);margin:auto}
+.kicker{font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(42px,12vw,100px);line-height:.9;letter-spacing:-.055em}
+h2{font-size:clamp(30px,7vw,62px);letter-spacing:-.04em}
+h3{font-size:22px}
+.sub{color:var(--muted);font-size:15px;line-height:1.7;max-width:650px;margin:18px auto}
+.gold{color:var(--gold)}.pink{color:var(--pink)}.cyan{color:var(--cyan)}
+button,input{font:inherit}
+.btn{
+ border:1px solid rgba(255,217,120,.3);background:rgba(255,217,120,.08);color:#fff;
+ border-radius:999px;padding:14px 22px;margin:8px;cursor:pointer;
+ box-shadow:0 0 30px rgba(255,217,120,.06);transition:.25s
+}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:linear-gradient(135deg,#ffe7a1,#b77cff);color:#150d20;border:0;font-weight:800}
+.topbar{position:absolute;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;z-index:10;font-size:10px;letter-spacing:.18em;color:#aaa}
+.pill{padding:9px 12px;border:1px solid #ffffff18;border-radius:99px;background:#ffffff08}
+.glow{filter:drop-shadow(0 0 22px rgba(255,217,120,.25))}
+.fade{animation:fade 1s both}.rise{animation:rise .8s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:none}}
+@keyframes pulse{50%{transform:scale(1.08);opacity:.7}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-300px}100%{background-position:300px}}
+.boot{font-family:ui-monospace,monospace;color:#8b7d9e;font-size:12px;line-height:2;text-align:left;max-width:520px;margin:auto}
+.boot b{color:#ddd}.cursor{display:inline-block;width:7px;height:14px;background:#bda6ff;animation:pulse .7s infinite}
+#prologue .bigline{margin-top:18px}
+.scan{
+ width:min(330px,80vw);height:330px;margin:28px auto;border-radius:50%;
+ border:1px solid #ffffff20;position:relative;display:grid;place-items:center;
+ box-shadow:inset 0 0 80px #7d43ff12,0 0 80px #7d43ff10
+}
+.scan:before,.scan:after{content:"";position:absolute;border-radius:50%;border:1px solid #9d6cff35}
+.scan:before{inset:25px;animation:spin 12s linear infinite}
+.scan:after{inset:58px;border-style:dashed;animation:spin 8s linear infinite reverse}
+.scanCore{font-size:13px;letter-spacing:.25em;color:#cfc3dc}
+.map{width:min(850px,96vw);height:min(600px,72vh);margin:auto;position:relative}
+.orb{
+ position:absolute;width:82px;height:82px;border-radius:50%;display:grid;place-items:center;
+ border:1px solid #ffffff25;background:radial-gradient(circle,#fff8 0 2%,#b57cff30 15%,#080610 65%);
+ box-shadow:0 0 35px #9d6cff22;cursor:pointer;transition:.3s
+}
+.orb:active{transform:scale(.9)}.orb.done{box-shadow:0 0 45px #ffd97866;border-color:#ffd97888}
+.orb span{font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,#ffffff20,transparent);transform-origin:left center}
+.legend{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#81768f;font-size:10px;letter-spacing:.18em}
+.panel{
+ width:min(760px,94vw);max-height:78vh;overflow:auto;margin:auto;padding:28px;
+ border:1px solid #ffffff15;border-radius:28px;background:linear-gradient(145deg,#ffffff09,#ffffff03);
+ box-shadow:0 25px 100px #0009;backdrop-filter:blur(14px)
+}
+.letter{font-family:Georgia,serif;text-align:left;font-size:17px;line-height:1.9;color:#ded5e7}
+.letter .sign{text-align:right;color:var(--gold);margin-top:25px}
+.galaxy{
+ width:min(600px,90vw);aspect-ratio:1;border-radius:50%;margin:15px auto;position:relative;
+ background:radial-gradient(circle,#fff 0 1%,#b88cff 1.5%,#281b42 8%,#09060f 48%,transparent 70%);
+ box-shadow:0 0 80px #8e5bff33
+}
+.memory{position:absolute;width:44px;height:44px;border-radius:50%;border:1px solid #fff5;background:#fff1;cursor:pointer}
+.memory:after{content:"✦";display:grid;place-items:center;height:100%;color:#ffd978}
+#garden{position:relative;height:55vh;min-height:330px}
+.flower{position:absolute;bottom:5%;font-size:30px;animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-16px) rotate(3deg)}}
+.moon{width:190px;height:190px;border-radius:50%;margin:10px auto;background:radial-gradient(circle at 35% 30%,#fff,#e7ddff 20%,#a78cff 48%,#241a3c 70%);box-shadow:0 0 90px #b998ff55}
+.vault{width:min(420px,85vw);height:250px;margin:30px auto;border:1px solid #ffd97855;border-radius:30px;display:grid;place-items:center;background:radial-gradient(circle,#ffd97814,transparent 65%);position:relative}
+.dial{width:130px;height:130px;border:5px solid #ffd97855;border-radius:50%;display:grid;place-items:center;font-size:38px}
+.secret{min-height:230px;display:grid;place-items:center;border:1px dashed #ffffff22;border-radius:25px;margin:20px 0;padding:30px}
+.musicRing{width:220px;height:220px;border-radius:50%;border:1px solid #ff7fc855;margin:20px auto;display:grid;place-items:center;box-shadow:0 0 80px #ff7fc822}
+.musicRing.play{animation:spin 7s linear infinite}
+.keybox input{width:min(360px,85vw);padding:15px 18px;border-radius:15px;border:1px solid #ffffff20;background:#fff08;color:#fff;outline:none;text-align:center;letter-spacing:.15em}
+.progress{height:3px;background:#ffffff12;position:absolute;bottom:0;left:0;right:0}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--gold),var(--pink));transition:1s}
+.toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%) translateY(20px);background:#100c18;border:1px solid #fff2;padding:12px 16px;border-radius:999px;color:#ddd;opacity:0;transition:.3s;z-index:50;pointer-events:none;font-size:12px}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.small{font-size:11px;color:#776c83;line-height:1.6}
+#destination{background:radial-gradient(circle at 50% 50%,#38224d,#08050d 55%,#020106)}
+.portal{
+ width:min(360px,78vw);aspect-ratio:1;border-radius:50%;margin:30px auto;
+ background:radial-gradient(circle,#fff 0 1%,#ffe69b 2%,#a86dff 8%,#180e29 40%,transparent 68%);
+ box-shadow:0 0 100px #b477ff66,0 0 220px #ffcf6740;animation:pulse 2.8s infinite
+}
+.finalKey{font-size:clamp(40px,10vw,86px);letter-spacing:.18em;color:#ffd978}
+</style>
+
+<style>
+/* PRINCESS TREATMENT EXPANSION */
+#crownOverlay{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:radial-gradient(circle,#3b245c,#05030a 65%);padding:25px;text-align:center}
+#crownOverlay.show{display:flex}
+.crownCard{width:min(620px,94vw);padding:35px 24px;border:1px solid #ffd97855;border-radius:32px;background:#ffffff08;backdrop-filter:blur(18px);box-shadow:0 0 100px #ffd97818}
+.crownIcon{font-size:72px;animation:crownFloat 2s ease-in-out infinite}
+@keyframes crownFloat{50%{transform:translateY(-12px) rotate(2deg)}}
+#compliments{min-height:90px;display:grid;place-items:center;font-size:20px;line-height:1.5;color:#eee}
+.loveMeter{height:8px;border-radius:20px;background:#ffffff12;overflow:hidden;margin:18px 0}.loveMeter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff7fc8,#ffd978,#a86dff);transition:1.5s}
+.royalBadge{display:inline-block;padding:7px 12px;border-radius:99px;border:1px solid #ffd97844;color:#ffd978;font-size:10px;letter-spacing:.16em;margin:5px}
+.choiceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px}.choiceGrid button{margin:0}
+.roseRain{position:fixed;inset:0;pointer-events:none;z-index:55;overflow:hidden}.petal{position:absolute;top:-40px;font-size:22px;animation:petalFall linear forwards}
+@keyframes petalFall{to{transform:translateY(110vh) rotate(540deg);opacity:.1}}
+/* ADVANCED CINEMATIC TRANSITIONS */
+.screen{opacity:0;visibility:hidden;display:block;pointer-events:none;transform:scale(1.035) translateY(14px);filter:blur(8px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1),filter .7s ease,visibility .7s}
+.screen.active{opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none}
+.screen.active .wrap,.screen.active .panel{animation:contentEnter .9s cubic-bezier(.16,1,.3,1) both}
+@keyframes contentEnter{from{opacity:0;transform:translateY(28px) scale(.985)}to{opacity:1;transform:none}}
+.btn{transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease,background .35s ease}
+.btn:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 12px 40px #ffd97818}
+.orb{transition:transform .55s cubic-bezier(.16,1,.3,1),box-shadow .45s ease,border-color .45s ease}
+.orb:hover{transform:scale(1.1);box-shadow:0 0 65px #9d6cff44}
+
+
+/* WARM PREMIUM FINAL REVEAL */
+.cinematic{
+  background:
+    radial-gradient(circle at 50% 18%,rgba(255,241,210,.95),transparent 28%),
+    radial-gradient(circle at 15% 85%,rgba(245,215,224,.42),transparent 35%),
+    linear-gradient(145deg,#fbf7f1,#f6eef0 55%,#f9f2e7);
+  color:#3d3540;
+}
+.cinematic .center{padding:34px 22px}
+.warmAura{
+  position:absolute;inset:-15%;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(255,255,255,.75),transparent 34%),
+    radial-gradient(circle at 70% 25%,rgba(255,220,184,.28),transparent 28%);
+  animation:warmBreath 7s ease-in-out infinite;
+}
+.premiumReveal{position:relative;z-index:2;max-width:650px}
+.softKicker{
+  font-size:9px;letter-spacing:.32em;color:#9b8d91;
+  opacity:0;animation:softIn .9s .1s both;
+}
+.envelopeMark{
+  width:82px;height:62px;margin:28px auto 19px;
+  position:relative;border:1px solid rgba(151,119,105,.26);
+  border-radius:12px;background:rgba(255,255,255,.58);
+  box-shadow:0 18px 45px rgba(105,75,70,.12);
+  opacity:0;animation:envelopeIn 1.15s .35s cubic-bezier(.16,1,.3,1) both;
+}
+.envelopeMark:before,.envelopeMark:after{
+  content:"";position:absolute;top:14px;width:43px;height:1px;
+  background:#bda9a0;opacity:.65;
+}
+.envelopeMark:before{left:4px;transform:rotate(31deg);transform-origin:left}
+.envelopeMark:after{right:4px;transform:rotate(-31deg);transform-origin:right}
+.envelopePaper{
+  position:absolute;left:13px;right:13px;bottom:10px;height:1px;
+  background:#d6c5bd;
+}
+.envelopeMark span{
+  position:absolute;inset:0;display:grid;place-items:center;
+  color:#b28b68;font-size:15px;
+}
+.revealTitle{
+  font-size:clamp(38px,10vw,70px);letter-spacing:.16em;
+  color:#5a4c54;text-shadow:none;
+  opacity:0;transform:translateY(8px) scale(.94);
+  animation:premiumTitle 1.25s .8s cubic-bezier(.16,1,.3,1) both;
+}
+.typeReveal{
+  min-height:28px;margin:16px auto 0;
+  font-family:Georgia,serif;font-size:17px;color:#786b72;
+}
+.finalLetter{
+  margin:27px auto 0;max-width:570px;padding:26px 27px;
+  border:1px solid rgba(130,104,100,.16);
+  border-radius:22px;background:rgba(255,255,255,.52);
+  box-shadow:0 20px 65px rgba(87,65,67,.10);
+  backdrop-filter:blur(10px);
+  font-family:Georgia,serif;font-size:17px;line-height:1.85;
+  color:#655b61;text-align:center;
+  opacity:0;transform:translateY(20px);filter:blur(5px);
+  transition:1.15s cubic-bezier(.16,1,.3,1);
+}
+.finalLetter p{margin:8px 0}
+.finalLetter .letterLine{
+  width:42px;height:1px;background:#c7a98e;margin:0 auto 19px;opacity:.7;
+}
+.finalLetter .warmLine{color:#a77a62;font-size:21px;margin:17px 0}
+.finalLetter .signature{
+  margin-top:22px;padding-top:16px;border-top:1px solid rgba(130,104,100,.12);
+  color:#9a8b91;font-size:13px;line-height:1.6;
+}
+.premiumBtn{
+  background:#5f5058!important;color:#fff!important;
+  border:0!important;padding:14px 25px;
+  box-shadow:0 10px 30px rgba(71,56,63,.16)!important;
+}
+.finalGo{
+  opacity:0;transform:translateY(14px);
+  pointer-events:none;transition:1s cubic-bezier(.16,1,.3,1);
+}
+.cinematic.revealDone .finalLetter{
+  opacity:1;transform:none;filter:blur(0);
+}
+.cinematic.revealDone .finalGo{
+  opacity:1;transform:none;pointer-events:auto;
+}
+.cinematic.revealDone .envelopeMark{animation:envelopeFloat 4s ease-in-out infinite}
+@keyframes softIn{
+  from{opacity:0;transform:translateY(10px);filter:blur(5px)}
+  to{opacity:1;transform:none;filter:none}
+}
+@keyframes envelopeIn{
+  0%{opacity:0;transform:translateY(18px) scale(.72) rotate(-3deg);filter:blur(8px)}
+  65%{opacity:1;transform:translateY(-3px) scale(1.03) rotate(1deg)}
+  100%{opacity:1;transform:none}
+}
+@keyframes premiumTitle{
+  0%{opacity:0;transform:translateY(12px) scale(.88);filter:blur(12px)}
+  65%{opacity:1;transform:translateY(-2px) scale(1.025);filter:blur(0)}
+  100%{opacity:1;transform:none}
+}
+@keyframes warmBreath{
+  50%{transform:scale(1.045);opacity:.72}
+}
+@keyframes envelopeFloat{
+  50%{transform:translateY(-5px)}
+}
+@media (max-width:600px){
+  .finalLetter{font-size:16px;padding:23px 20px;line-height:1.75}
+  .softKicker{letter-spacing:.22em}
+}
+@media (prefers-reduced-motion:reduce){
+  .cinematic *,.warmAura{animation:none!important;transition:none!important}
+}
+
+/* =========================
+   COMPLETE VISUAL REDESIGN
+   ========================= */
+:root{
+  --paper:#fbf8f4;
+  --paper2:#f4eee8;
+  --ink:#3f3940;
+  --muted:#8b8085;
+  --rose:#c99b9e;
+  --champagne:#b8956b;
+  --line:rgba(82,65,69,.13);
+  --shadow:0 24px 70px rgba(63,48,53,.11);
+  --shadowSoft:0 10px 30px rgba(63,48,53,.08);
+}
+html,body{
+  background:var(--paper)!important;
+  color:var(--ink)!important;
+}
+body{
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  overflow-x:hidden;
+}
+*{box-sizing:border-box}
+button,input{font:inherit}
+
+/* Make every screen feel like one intentional premium interface */
+.screen{
+  min-height:100svh!important;
+  background:
+    radial-gradient(circle at 50% -10%,rgba(255,255,255,.95),transparent 38%),
+    linear-gradient(180deg,#fcfaf7 0%,#f7f1ed 100%)!important;
+  color:var(--ink)!important;
+  padding:clamp(24px,5vw,58px)!important;
+}
+.screen:before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 88%,rgba(215,181,175,.12),transparent 25%),
+    radial-gradient(circle at 88% 18%,rgba(208,187,157,.10),transparent 24%);
+}
+.center{
+  width:100%!important;
+  min-height:calc(100svh - 48px)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.wrap{
+  width:min(100%,760px)!important;
+  margin:auto!important;
+  text-align:center!important;
+}
+h1,h2,h3,.title,.big,.logo{
+  color:var(--ink)!important;
+  text-shadow:none!important;
+  line-height:1.08!important;
+}
+p{color:var(--muted)}
+.btn{
+  min-height:48px!important;
+  border-radius:999px!important;
+  padding:13px 22px!important;
+  letter-spacing:.08em!important;
+  font-size:11px!important;
+  font-weight:700!important;
+  border:1px solid var(--line)!important;
+  background:rgba(255,255,255,.72)!important;
+  color:var(--ink)!important;
+  box-shadow:var(--shadowSoft)!important;
+  transition:transform .28s ease,box-shadow .28s ease,background .28s ease!important;
+}
+.btn:hover{transform:translateY(-2px)!important;box-shadow:0 16px 38px rgba(63,48,53,.12)!important}
+.btn:active{transform:scale(.98)!important}
+input{
+  width:min(100%,380px)!important;
+  height:52px!important;
+  border:1px solid var(--line)!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.76)!important;
+  color:var(--ink)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),var(--shadowSoft)!important;
+  outline:none!important;
+  padding:0 18px!important;
+}
+input:focus{border-color:rgba(185,143,111,.5)!important;box-shadow:0 0 0 4px rgba(185,143,111,.10)!important}
+.card,.panel,.box,.glass{
+  background:rgba(255,255,255,.62)!important;
+  border:1px solid var(--line)!important;
+  border-radius:26px!important;
+  box-shadow:var(--shadow)!important;
+  backdrop-filter:blur(14px)!important;
+}
+.kicker,.eyebrow,.label{
+  color:#a18f93!important;
+  letter-spacing:.24em!important;
+  font-size:9px!important;
+  font-weight:700!important;
+}
+
+/* Boot / intro */
+#boot .wrap,#prologue .wrap,#scan .wrap,#map .wrap,#room .wrap,#complete .wrap,#portal .wrap,#clearance .wrap{
+  padding:clamp(28px,6vw,54px)!important;
+  background:rgba(255,255,255,.48)!important;
+  border:1px solid var(--line)!important;
+  border-radius:32px!important;
+  box-shadow:var(--shadow)!important;
+  backdrop-filter:blur(16px)!important;
+}
+#boot h1,#prologue h1,#scan h1,#map h1,#room h1,#complete h1,#portal h1,#clearance h1{
+  font-size:clamp(31px,7vw,54px)!important;
+  letter-spacing:-.025em!important;
+}
+#boot .btn,#prologue .btn,#scan .btn,#map .btn,#room .btn,#complete .btn,#portal .btn,#clearance .btn{
+  margin-top:18px;
+}
+#boot:after,#prologue:after,#scan:after,#map:after,#room:after,#complete:after,#portal:after,#clearance:after{
+  content:"";
+  display:block;
+  position:absolute;
+  bottom:22px;left:50%;width:34px;height:1px;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,var(--champagne),transparent);
+  opacity:.5;
+}
+
+/* Portal / journey cards */
+#portal .wrap{
+  max-width:700px!important;
+}
+#portal .btn{
+  background:#5c4e55!important;
+  color:white!important;
+  border-color:#5c4e55!important;
+}
+#portal .btn:hover{box-shadow:0 16px 36px rgba(70,56,63,.20)!important}
+
+/* Clearance: make it look like a luxury invitation */
+#clearance .wrap{
+  max-width:590px!important;
+}
+#clearance input{
+  display:block!important;
+  margin:22px auto 10px!important;
+  text-align:center!important;
+  letter-spacing:.18em!important;
+  text-transform:uppercase!important;
+}
+#clearance .btn{
+  min-width:170px!important;
+}
+
+/* Final: clean letter composition */
+#final{
+  padding:24px!important;
+}
+#final .center{
+  min-height:calc(100svh - 48px)!important;
+}
+#final .premiumReveal{
+  width:min(100%,650px)!important;
+  padding:clamp(8px,2vw,18px)!important;
+}
+#final .softKicker{margin-bottom:4px}
+#final .envelopeMark{
+  margin:22px auto 18px!important;
+}
+#final .revealTitle{
+  font-family:Inter,ui-sans-serif,system-ui,sans-serif!important;
+  font-weight:700!important;
+}
+#final .typeReveal{
+  font-family:Georgia,"Times New Roman",serif!important;
+}
+#final .finalLetter{
+  width:100%!important;
+}
+#final .finalGo{
+  margin-top:24px!important;
+}
+
+/* Hide decorative old elements if present, so nothing looks accidentally stacked */
+#final .cinematicGlow,#final .cinematicKicker,#final .revealLock{display:none!important}
+
+/* Consistent screen transition */
+.screen.active{
+  animation:pageIn .72s cubic-bezier(.16,1,.3,1) both!important;
+}
+@keyframes pageIn{
+  from{opacity:0;transform:translateY(12px);filter:blur(7px)}
+  to{opacity:1;transform:none;filter:blur(0)}
+}
+
+/* Small screens: no cramped boxes */
+@media(max-width:600px){
+  .screen{padding:16px!important}
+  .center{min-height:calc(100svh - 32px)!important}
+  .wrap{
+    border-radius:25px!important;
+  }
+  #boot .wrap,#prologue .wrap,#scan .wrap,#map .wrap,#room .wrap,#complete .wrap,#portal .wrap,#clearance .wrap{
+    padding:27px 19px!important;
+  }
+  #final{padding:13px!important}
+  #final .center{min-height:calc(100svh - 26px)!important}
+  #final .finalLetter{
+    border-radius:20px!important;
+    padding:22px 18px!important;
+  }
+}
+
+/* Respect accessibility settings */
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.01ms!important;
+  }
+}
+</style>
+<style>
+
+/* =========================================================
+   DIDUS — ART-DIRECTION REDESIGN
+   Editorial luxury / storybook interface / responsive
+   ========================================================= */
+:root{
+  --canvas:#f3eee8;
+  --surface:#fffdf9;
+  --surface2:#ebe2da;
+  --text:#29242a;
+  --soft:#766c70;
+  --accent:#a86f73;
+  --accent2:#c5a074;
+  --deep:#40363d;
+  --hair:rgba(62,49,54,.15);
+  --shadow-xl:0 30px 90px rgba(47,35,40,.14);
+  --shadow-md:0 14px 42px rgba(47,35,40,.10);
+}
+
+/* Global composition */
+html,body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(255,255,255,.95),transparent 32%),
+    radial-gradient(circle at 100% 100%,rgba(207,180,166,.22),transparent 35%),
+    var(--canvas)!important;
+  color:var(--text)!important;
+}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important}
+#stars{opacity:.16;mix-blend-mode:multiply}
+.screen{
+  padding:72px clamp(18px,6vw,92px)!important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,255,255,.96),transparent 42%),
+    linear-gradient(145deg,#f7f3ee,#eee6e0)!important;
+  color:var(--text)!important;
+}
+.screen:after{
+  content:"";
+  position:absolute;
+  inset:18px;
+  border:1px solid rgba(73,58,63,.08);
+  border-radius:34px;
+  pointer-events:none;
+}
+.center{min-height:calc(100svh - 144px)!important}
+.wrap{position:relative;z-index:2}
+
+/* New top navigation */
+.redesigned-topbar{
+  top:24px!important;left:clamp(22px,5vw,70px)!important;right:clamp(22px,5vw,70px)!important;
+  z-index:30!important;color:var(--soft)!important;
+}
+.brand-lockup,.top-status{display:flex;align-items:center;gap:10px}
+.brand-mark{
+  width:28px;height:28px;border:1px solid var(--hair);border-radius:50%;
+  display:grid;place-items:center;color:var(--accent2);background:rgba(255,255,255,.7);
+  box-shadow:var(--shadow-md)
+}
+.brand-name,.top-status{font-size:9px!important;letter-spacing:.19em!important;font-weight:800}
+.top-status{gap:16px}
+.top-status .pill{
+  background:rgba(255,255,255,.72)!important;border:1px solid var(--hair)!important;
+  color:var(--text)!important
+}
+
+/* Vertical journey index */
+.journey-rail{
+  position:fixed;right:22px;top:50%;transform:translateY(-50%);
+  z-index:25;display:flex;flex-direction:column;align-items:center;gap:12px
+}
+.journey-rail:before{
+  content:"";position:absolute;top:23px;bottom:23px;width:1px;background:var(--hair);z-index:-1
+}
+.journey-rail i{
+  width:7px;height:7px;border-radius:50%;border:1px solid rgba(71,57,62,.35);
+  background:var(--canvas);transition:.4s ease
+}
+.journey-rail i.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 5px rgba(168,111,115,.10)}
+.rail-label{
+  writing-mode:vertical-rl;transform:rotate(180deg);font-size:7px;letter-spacing:.25em;
+  color:#998d91;margin-bottom:7px
+}
+.corner-note{
+  position:fixed;left:26px;bottom:24px;z-index:25;font-size:7px;letter-spacing:.22em;
+  color:#9a8e92
+}
+
+/* Typography becomes editorial */
+.kicker,.eyebrow,.label{
+  color:var(--accent)!important;font-size:8px!important;letter-spacing:.28em!important;
+  font-weight:800!important
+}
+h1,h2,h3{
+  color:var(--text)!important;font-weight:650!important;
+  letter-spacing:-.045em!important
+}
+h1{font-size:clamp(48px,9vw,104px)!important;line-height:.94!important}
+h2{font-size:clamp(34px,6vw,68px)!important;line-height:1!important}
+.sub{
+  color:var(--soft)!important;max-width:610px;font-size:15px!important;
+  line-height:1.8!important
+}
+
+/* Every main scene gets a magazine-like frame */
+#boot .wrap,#prologue .wrap,#scan .wrap,#map .wrap,#complete .wrap,#portal .wrap,#clearance .panel{
+  width:min(940px,100%)!important;
+  padding:clamp(36px,7vw,78px)!important;
+  border:1px solid var(--hair)!important;
+  border-radius:36px!important;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,255,255,.46))!important;
+  box-shadow:var(--shadow-xl)!important;
+  backdrop-filter:blur(18px)!important;
+}
+#prologue .wrap{
+  text-align:left!important;
+  display:grid;grid-template-columns:minmax(0,1.25fr) minmax(220px,.75fr);
+  gap:48px;align-items:end
+}
+#prologue .bigline{margin:0!important}
+#prologue .sub{grid-column:1}
+#prologue .btn{grid-column:2;grid-row:2;justify-self:end}
+
+/* Boot becomes a title card */
+#boot .wrap:before{
+  content:"D / 001";position:absolute;top:26px;left:32px;font-size:8px;
+  letter-spacing:.2em;color:#9c8e91
+}
+.boot{
+  color:#776b70!important;max-width:620px!important;font-size:11px!important;
+  line-height:2.2!important
+}
+.boot b{color:var(--text)!important}
+.cursor{background:var(--accent)!important}
+
+/* Buttons: quiet luxury rather than glowing controls */
+.btn{
+  min-height:50px!important;padding:14px 23px!important;
+  border:1px solid var(--hair)!important;border-radius:999px!important;
+  background:rgba(255,255,255,.76)!important;color:var(--text)!important;
+  box-shadow:0 8px 24px rgba(50,38,43,.07)!important;
+  letter-spacing:.13em!important;font-size:9px!important
+}
+.btn.primary,.premiumBtn{
+  background:var(--deep)!important;color:#fff!important;border-color:var(--deep)!important;
+  box-shadow:0 14px 34px rgba(64,54,61,.20)!important
+}
+.btn:hover{transform:translateY(-3px)!important;box-shadow:0 18px 40px rgba(50,38,43,.13)!important}
+
+/* Identity scene */
+#scan .scan{
+  width:min(280px,65vw)!important;height:min(280px,65vw)!important;
+  border:1px solid rgba(72,57,63,.16)!important;
+  box-shadow:inset 0 0 70px rgba(168,111,115,.08),0 25px 80px rgba(63,48,53,.09)!important;
+  background:rgba(255,255,255,.25)
+}
+#scan .scan:before{border-color:rgba(168,111,115,.28)!important}
+#scan .scan:after{border-color:rgba(197,160,116,.35)!important}
+.scanCore{color:var(--accent)!important;font-size:10px!important}
+
+/* Map gets an actual atlas feel */
+#map .wrap{max-width:1080px!important}
+#mapArea{
+  width:min(900px,100%)!important;height:min(540px,58vh)!important;
+  margin:28px auto 0!important;
+  border:1px solid var(--hair);border-radius:28px;
+  background:
+    linear-gradient(rgba(88,70,76,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(88,70,76,.035) 1px,transparent 1px),
+    radial-gradient(circle at 50% 45%,rgba(197,160,116,.13),transparent 35%),
+    rgba(255,255,255,.32);
+  background-size:42px 42px,42px 42px,auto,auto;
+  overflow:hidden
+}
+#map .line{background:linear-gradient(90deg,transparent,rgba(168,111,115,.32),transparent)!important}
+#map .orb{
+  width:72px!important;height:72px!important;
+  background:rgba(255,253,249,.88)!important;
+  border:1px solid rgba(74,58,64,.18)!important;
+  color:var(--text)!important;box-shadow:0 14px 35px rgba(57,43,48,.10)!important
+}
+#map .orb.done{background:var(--deep)!important;color:white!important;border-color:var(--deep)!important;box-shadow:0 0 0 7px rgba(64,54,61,.08),0 18px 42px rgba(57,43,48,.16)!important}
+#map .legend{position:static!important;margin-top:14px;color:#9a8e92!important}
+
+/* Archive room */
+#room .panel{
+  width:min(880px,94vw)!important;padding:clamp(30px,6vw,62px)!important;
+  background:rgba(255,253,249,.86)!important
+}
+#roomBody{max-width:720px;margin-left:auto;margin-right:auto}
+.letter{color:#5f565b!important;font-size:17px!important}
+.letter .sign{color:var(--accent)!important}
+.galaxy{
+  background:
+    radial-gradient(circle at 48% 48%,#fff 0 1%,#c9a6a4 1.8%,#75616d 8%,#31272f 31%,#eee5df 70%,transparent 71%)!important;
+  box-shadow:0 25px 80px rgba(62,48,54,.13)!important
+}
+.vault{border-color:rgba(168,111,115,.25)!important;background:rgba(168,111,115,.04)!important}
+.dial{border-color:rgba(168,111,115,.28)!important;color:var(--accent)!important}
+.musicRing{border-color:rgba(168,111,115,.38)!important;box-shadow:0 0 70px rgba(168,111,115,.10)!important}
+
+/* Completion / final gateway */
+#complete .gold,#portal .gold,#clearance .gold{color:var(--accent)!important}
+#complete h1{font-size:clamp(74px,15vw,160px)!important;letter-spacing:-.08em!important}
+#portal .portal{
+  width:min(330px,65vw)!important;
+  background:
+    radial-gradient(circle,#fff 0 2%,#dfc1b0 3%,#b37c83 9%,#514149 28%,#f1e7df 64%,transparent 67%)!important;
+  box-shadow:0 0 120px rgba(168,111,115,.20),0 0 220px rgba(197,160,116,.13)!important;
+}
+
+/* Clearance is redesigned as an invitation */
+#clearance .panel{max-width:760px!important}
+#clearance .letter{
+  padding:26px;border-left:2px solid rgba(168,111,115,.28);
+  background:rgba(247,241,236,.55);border-radius:0 18px 18px 0
+}
+#clearance input{
+  background:rgba(255,255,255,.9)!important;border-color:var(--hair)!important
+}
+
+/* Final scene is intentionally distinct: gallery wall / letter reveal */
+#final.cinematic{
+  background:
+    radial-gradient(circle at 50% 25%,rgba(255,255,255,.96),transparent 36%),
+    linear-gradient(135deg,#efe5de,#f8f4ef 48%,#e8ddd7)!important;
+  color:var(--text)!important
+}
+#final:after{border-color:rgba(72,56,62,.10)!important}
+#final .premiumReveal{max-width:850px!important}
+#final .envelopeMark{
+  width:96px!important;height:72px!important;
+  border-color:rgba(88,68,72,.22)!important;background:rgba(255,255,255,.72)!important
+}
+#final .revealTitle{
+  color:var(--deep)!important;font-size:clamp(48px,9vw,88px)!important;
+  letter-spacing:.13em!important
+}
+#final .typeReveal{color:var(--accent)!important;font-size:18px!important}
+#final .finalLetter{
+  max-width:650px!important;padding:38px 42px!important;
+  border:1px solid var(--hair)!important;border-radius:30px!important;
+  background:rgba(255,255,255,.72)!important;box-shadow:var(--shadow-xl)!important
+}
+#final .finalLetter .warmLine{color:var(--accent)!important}
+#final .finalLetter .signature{color:#918387!important}
+
+/* Overlay redesigned as a collectible card */
+#crownOverlay{
+  background:rgba(48,38,43,.42)!important;backdrop-filter:blur(10px)
+}
+.crownCard{
+  background:var(--surface)!important;color:var(--text)!important;
+  border:1px solid var(--hair)!important;border-radius:32px!important;
+  box-shadow:0 35px 110px rgba(31,23,27,.25)!important
+}
+.crownIcon{font-size:58px!important}
+#compliments{color:var(--text)!important}
+.loveMeter{background:#e8ded9!important}
+.loveMeter i{background:linear-gradient(90deg,var(--accent),var(--accent2),#8d737c)!important}
+
+/* Progress becomes a refined bottom rule */
+.progress{height:4px!important;background:rgba(62,49,54,.08)!important;z-index:40}
+.progress i{background:linear-gradient(90deg,var(--accent),var(--accent2),var(--deep))!important}
+
+/* Mobile art direction */
+@media(max-width:700px){
+  .screen{padding:62px 14px 42px!important}
+  .screen:after{inset:10px;border-radius:25px}
+  .redesigned-topbar{left:20px!important;right:20px!important;top:18px!important}
+  .brand-name{display:none}
+  .top-status{font-size:8px!important}
+  .journey-rail{right:10px;gap:9px}
+  .rail-label{display:none}
+  .corner-note{left:18px;bottom:15px}
+  #prologue .wrap{
+    display:block;text-align:center!important;padding:36px 24px!important
+  }
+  #prologue .sub{margin:20px auto!important}
+  #prologue .btn{display:block;margin:18px auto 0!important}
+  #boot .wrap,#scan .wrap,#map .wrap,#complete .wrap,#portal .wrap,#clearance .panel{
+    padding:34px 21px!important;border-radius:27px!important
+  }
+  #mapArea{height:54vh;min-height:350px}
+  #map .orb{width:60px!important;height:60px!important}
+  #map .orb{margin-top:0}
+  #final .finalLetter{padding:28px 22px!important}
+}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .journey-rail i,.btn{transition:none!important}
+}
+
+</style>
+
+<style id="royal-scavenger-v4">
+#boot{
+  background:radial-gradient(circle at 50% 42%,rgba(255,215,128,.12),transparent 16%),
+  radial-gradient(circle at 50% 110%,rgba(112,24,55,.40),transparent 42%),
+  linear-gradient(135deg,#090708 0%,#1d0c13 48%,#080607 100%)!important;
+  color:#f9f0dc!important;
+}
+#boot:before{inset:18px!important;border:1px solid rgba(240,209,138,.14)!important;
+  box-shadow:inset 0 0 140px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.015)!important}
+#boot:after{display:none!important}
+.gate-stars{position:absolute;inset:0;pointer-events:none;background-image:
+ radial-gradient(circle,rgba(255,231,171,.8) 0 1px,transparent 1.5px),
+ radial-gradient(circle,rgba(255,231,171,.45) 0 1px,transparent 1.5px);
+ background-size:97px 113px,157px 173px;background-position:12px 23px,71px 91px;
+ mask-image:radial-gradient(circle at 50% 50%,black,transparent 72%);
+ animation:gateDrift 20s linear infinite}
+@keyframes gateDrift{to{background-position:109px 4px,228px 143px}}
+.gate-frame{position:absolute;inset:5.5%;pointer-events:none}
+.gate-frame span{position:absolute;width:54px;height:54px;border-color:rgba(240,209,138,.4)}
+.gate-frame span:nth-child(1){left:0;top:0;border-left:1px solid;border-top:1px solid}
+.gate-frame span:nth-child(2){right:0;top:0;border-right:1px solid;border-top:1px solid}
+.gate-frame span:nth-child(3){left:0;bottom:0;border-left:1px solid;border-bottom:1px solid}
+.gate-frame span:nth-child(4){right:0;bottom:0;border-right:1px solid;border-bottom:1px solid}
+.gate-header{position:absolute;top:35px;left:5.5%;right:5.5%;display:flex;justify-content:space-between;
+ gap:20px;color:rgba(240,209,138,.62);font:9px ui-monospace,monospace;letter-spacing:.22em;
+ text-transform:uppercase;z-index:5}
+.gate-center{position:relative;z-index:4;width:min(850px,88vw);height:100%;margin:auto;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 45px;text-align:center}
+.gate-crown{font-size:clamp(42px,6vw,68px);line-height:1;color:#efd087;
+ filter:drop-shadow(0 0 28px rgba(240,209,138,.45));animation:gateCrown 4s ease-in-out infinite;margin-bottom:13px}
+@keyframes gateCrown{50%{transform:translateY(-8px) rotate(2deg);filter:drop-shadow(0 0 42px rgba(240,209,138,.7))}}
+.gate-eyebrow{font:10px/1 ui-monospace,monospace;letter-spacing:.48em;color:#c9a866;
+ text-transform:uppercase;margin-left:.48em;margin-bottom:18px}
+.gate-title{font:clamp(55px,10vw,116px)/.78 Georgia,serif;letter-spacing:-.065em;color:#fff8ea;text-shadow:0 18px 60px #000}
+.gate-title em{font-style:italic;color:#efd087}
+.gate-rule{display:flex;align-items:center;gap:13px;width:min(390px,70vw);margin:25px auto 22px}
+.gate-rule i{height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(240,209,138,.55))}
+.gate-rule i:last-child{background:linear-gradient(90deg,rgba(240,209,138,.55),transparent)}
+.gate-rule b{font:14px Georgia,serif;color:#efd087}
+.gate-console{width:min(590px,100%);padding:15px 17px 16px;border:1px solid rgba(240,209,138,.16);
+ background:linear-gradient(145deg,rgba(255,250,238,.07),rgba(255,250,238,.018));
+ box-shadow:0 25px 80px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.07);backdrop-filter:blur(18px);text-align:left}
+.console-top{display:flex;justify-content:space-between;margin-bottom:10px;color:rgba(255,245,226,.42);
+ font:8px ui-monospace,monospace;letter-spacing:.2em}
+.console-live{color:#d8bf87}.console-live b{display:inline-block;width:5px;height:5px;border-radius:50%;
+ background:#d8bf87;box-shadow:0 0 9px #d8bf87;margin-right:5px;animation:liveBlink 1s infinite}
+@keyframes liveBlink{50%{opacity:.2}}
+#boot .boot{max-width:none;margin:0;text-align:left;color:#b9ac9d;font-size:11px;line-height:1.75;min-height:112px}
+#boot .boot b{color:#f2dfb6;font-weight:600}.gate-promise{margin:20px 0 15px;color:rgba(255,246,228,.53);
+ font:12px/1.7 Inter,system-ui,sans-serif}.gate-promise strong{color:#e9d19c;font-weight:500}
+#boot .gate-btn{display:flex;align-items:center;justify-content:center;gap:24px;min-width:285px;
+ border:1px solid rgba(240,209,138,.62)!important;background:linear-gradient(135deg,#e5bd69,#f3dda3)!important;
+ color:#1a1010!important;border-radius:2px!important;padding:15px 20px!important;letter-spacing:.18em;
+ text-transform:uppercase;font-size:10px;box-shadow:0 15px 55px rgba(0,0,0,.38),0 0 35px rgba(224,183,91,.12)}
+#boot .gate-btn b{font-size:18px;font-weight:400;transition:transform .25s}
+#boot .gate-btn:hover b{transform:translateX(5px)}
+.gate-foot{margin-top:25px;font:7px ui-monospace,monospace;letter-spacing:.3em;color:rgba(240,209,138,.3)}
+.gate-side{position:absolute;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:9px;
+ writing-mode:vertical-rl;color:rgba(240,209,138,.25);font:8px ui-monospace,monospace;letter-spacing:.25em}
+.gate-side.left{left:3.5%}.gate-side.right{right:3.5%;transform:translateY(-50%) rotate(180deg)}
+.gate-side i{height:70px;width:1px;background:linear-gradient(rgba(240,209,138,.35),transparent)}
+.gate-orbit{position:absolute;left:50%;top:50%;border:1px solid rgba(240,209,138,.06);border-radius:50%;
+ transform:translate(-50%,-50%) rotate(-12deg);pointer-events:none}
+.orbit-a{width:min(92vw,1100px);height:min(92vw,1100px);animation:orbit 30s linear infinite}
+.orbit-b{width:min(72vw,850px);height:min(72vw,850px);border-style:dashed;animation:orbit 42s linear infinite reverse}
+@keyframes orbit{to{transform:translate(-50%,-50%) rotate(348deg)}}
+
+#map .orb{width:92px!important;height:92px!important;border-color:rgba(240,209,138,.23)!important;
+ background:radial-gradient(circle at 38% 30%,rgba(255,255,255,.18),transparent 9%),
+ radial-gradient(circle,#6b2438 0,#28101a 43%,#080609 70%)!important;
+ box-shadow:0 0 0 1px rgba(255,255,255,.025),0 18px 45px rgba(0,0,0,.3),inset 0 0 30px rgba(240,209,138,.05)!important}
+#map .orb:before{content:"";position:absolute;inset:-8px;border:1px solid rgba(240,209,138,.10);
+ border-radius:50%;animation:orbRing 5s linear infinite}
+@keyframes orbRing{to{transform:rotate(360deg)}}
+#map .orb.done{border-color:rgba(240,209,138,.78)!important;
+ background:radial-gradient(circle,#c99b4b 0,#5c2b34 17%,#180b12 62%)!important;
+ box-shadow:0 0 0 7px rgba(240,209,138,.035),0 0 55px rgba(240,209,138,.2)!important}
+
+#room .panel{border-radius:3px!important;border-color:rgba(240,209,138,.25)!important;
+ background:linear-gradient(145deg,rgba(255,249,235,.08),rgba(255,249,235,.025)),
+ radial-gradient(circle at 50% 0%,rgba(240,209,138,.07),transparent 45%)!important}
+#royalCurtain{position:fixed;inset:0;z-index:10000;pointer-events:none;opacity:0;display:grid;grid-template-columns:1fr 1fr}
+#royalCurtain i{background:linear-gradient(90deg,#12090b,#451622,#12090b);transform:scaleX(0);transition:transform .55s cubic-bezier(.7,0,.2,1)}
+#royalCurtain i:first-child{transform-origin:left}#royalCurtain i:last-child{transform-origin:right}
+#royalCurtain.show{opacity:1}#royalCurtain.show i{transform:scaleX(1)}#royalCurtain.hide i{transform:scaleX(0)}
+#royalCurtain .curtain-crown{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);
+ color:#f0d18a;font-size:45px;opacity:0;z-index:2;transition:.35s .15s;text-shadow:0 0 35px rgba(240,209,138,.65)}
+#royalCurtain.show .curtain-crown{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#royalSeal{position:fixed;right:22px;bottom:22px;z-index:500;width:48px;height:48px;border-radius:50%;
+ display:grid;place-items:center;border:1px solid rgba(232,196,116,.35);background:rgba(35,14,20,.62);
+ backdrop-filter:blur(10px);color:#e9c978;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:.75}
+#royalSeal span{font-size:19px;animation:sealSpin 12s linear infinite}@keyframes sealSpin{to{transform:rotate(360deg)}}
+@media(max-width:700px){
+ .gate-header{top:24px;left:7%;right:7%;font-size:7px;letter-spacing:.14em}.gate-header span:nth-child(2){display:none}
+ .gate-frame{inset:4%}.gate-frame span{width:32px;height:32px}.gate-center{padding:65px 14px 32px}
+ .gate-title{font-size:clamp(54px,16vw,84px)}.gate-eyebrow{font-size:8px;letter-spacing:.3em}
+ .gate-console{padding:12px}#boot .boot{font-size:10px;line-height:1.65;min-height:125px}
+ .gate-promise{font-size:11px}.gate-foot{font-size:6px;letter-spacing:.2em}.gate-side{display:none}
+ .orbit-a{width:125vw;height:125vw}.orbit-b{width:100vw;height:100vw}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+</style>
+
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<div class="topbar redesigned-topbar">
+      <div class="brand-lockup">
+        <span class="brand-mark">✦</span>
+        <span class="brand-name">DIDUS / ROYAL EDITION</span>
+      </div>
+      <div class="top-status"><span id="status">UNKNOWN TRANSMISSION</span><span class="pill" id="counter">0 / 7</span></div>
+    </div>
+    <div class="journey-rail" aria-hidden="true">
+      <span class="rail-label">YOUR JOURNEY</span>
+      <i data-step="1"></i><i data-step="2"></i><i data-step="3"></i><i data-step="4"></i><i data-step="5"></i><i data-step="6"></i><i data-step="7"></i>
+    </div>
+    <div class="corner-note" aria-hidden="true">PRIVATE / ONE OF ONE</div>
+
+<section class="screen active" id="boot">
+  <div class="gate-stars" aria-hidden="true"></div>
+  <div class="gate-orbit orbit-a" aria-hidden="true"></div>
+  <div class="gate-orbit orbit-b" aria-hidden="true"></div>
+  <div class="gate-frame" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+
+  <div class="gate-header">
+    <span>✦ DIDUS ARCHIVE</span><span>PRIVATE BIRTHDAY OPERATION / 01</span><span>ONE RECIPIENT ONLY</span>
+  </div>
+
+  <div class="gate-center">
+    <div class="gate-crown">♛</div>
+    <div class="gate-eyebrow">A KINGDOM HAS BEEN BUILT</div>
+    <div class="gate-title">For<br><em>My Princess.</em></div>
+    <div class="gate-rule"><i></i><b>✦</b><i></i></div>
+
+    <div class="gate-console">
+      <div class="console-top"><span>ROYAL TRANSMISSION</span><span class="console-live"><b></b> LIVE</span></div>
+      <div class="boot" id="bootText"></div>
+    </div>
+
+    <p class="gate-promise">Seven doors. Seven fragments. One real-world surprise.<br>
+      <strong>Nothing here was made for anyone else.</strong></p>
+
+    <button class="btn primary gate-btn" id="bootBtn" style="display:none">
+      <span>ENTER THE KINGDOM</span><b>→</b>
+    </button>
+    <div class="gate-foot">FOLLOW THE CLUES • FIND THE HIDDEN PATH • CLAIM WHAT IS WAITING</div>
+  </div>
+
+  <div class="gate-side left" aria-hidden="true"><span>01</span><i></i><small>THE GATE</small></div>
+  <div class="gate-side right" aria-hidden="true"><small>CLASSIFIED</small><i></i><span>∞</span></div>
+</section>
+
+<section class="screen" id="prologue">
+ <div class="center"><div class="wrap">
+  <div class="kicker">PRIVATE ROYAL TRANSMISSION • 01</div>
+  <div class="bigline"><h1 class="glow">This world<br><span class="gold">was waiting</span><br>for you.</h1></div>
+  <p class="sub">Not a normal website. Not a normal gift.<br>Someone spent time building a little universe with one person in mind.</p>
+  <button class="btn primary" onclick="go('scan')">BEGIN THE JOURNEY ✦</button>
+ </div></div>
+</section>
+
+<section class="screen" id="scan">
+ <div class="center"><div class="wrap">
+  <div class="kicker">ROYAL IDENTITY PROTOCOL</div>
+  <h2>Verifying <span class="gold">Princess.</span></h2>
+  <div class="scan"><div class="scanCore" id="scanText">SCANNING…</div></div>
+  <p class="sub" id="scanSub">Please remain magnificently yourself.</p>
+  <button class="btn primary" id="scanBtn" style="display:none" onclick="go('map')">IDENTITY CONFIRMED</button>
+ </div></div>
+</section>
+
+<section class="screen" id="map">
+ <div class="center"><div class="wrap">
+  <div class="kicker">THE ROYAL NAVIGATION SYSTEM</div>
+  <h2>Explore what was hidden.</h2>
+  <p class="sub">Seven fragments are scattered through your little kingdom. Touch them. Read them. Wake them up.</p>
+  <div class="map" id="mapArea"></div>
+  <div class="legend">THE MAP RESPONDS TO YOU • FIND ALL 7</div>
+<div style="margin-top:22px">
+ <button class="btn" onclick="royalCompliment()">💌 RECEIVE A ROYAL MESSAGE</button>
+ <button class="btn" onclick="makeItRain()">🌹 PRINCESS MOMENT</button>
+</div>
+ </div></div>
+</section>
+
+<section class="screen" id="room">
+ <div class="center"><div class="panel">
+  <div class="kicker" id="roomKicker">ROYAL ARCHIVE</div>
+  <h2 id="roomTitle">—</h2>
+  <div id="roomBody" style="margin-top:22px"></div>
+  <div class="royalBadge">✨ PRINCESS PRIVILEGE UNLOCKED</div>
+  <div class="choiceGrid">
+   <button class="btn" onclick="royalCompliment()">💗 Compliment me</button>
+   <button class="btn" onclick="makeItRain()">🌹 Spoil me</button>
+  </div>
+  <button class="btn primary" onclick="closeRoom()">RETURN TO KINGDOM</button>
+ </div></div>
+</section>
+
+<section class="screen" id="complete">
+ <div class="center"><div class="wrap">
+  <div class="kicker">ROYAL JOURNEY</div>
+  <h1 class="gold">100%</h1>
+  <h2 style="margin-top:18px">All secrets awakened.</h2>
+  <p class="sub">And yet… the kingdom has been hiding one final door.</p>
+  <button class="btn primary" onclick="go('portal')">OPEN THE FINAL DOOR</button>
+ </div></div>
+</section>
+
+<section class="screen" id="portal">
+ <div class="center"><div class="wrap">
+  <div class="kicker">FINAL GATEWAY</div>
+  <h2>There is one thing this world<br><span class="gold">cannot give you.</span></h2>
+  <div class="portal"></div>
+  <p class="sub">Your final surprise exists outside this screen.</p>
+  <button class="btn primary" onclick="go('clearance')">REVEAL THE FINAL SURPRISE</button>
+ </div></div>
+</section>
+
+<section class="screen" id="clearance">
+ <div class="center"><div class="panel keybox" style="text-align:center">
+  <div class="kicker">👑 FINAL ROYAL CLEARANCE</div>
+  <h2>You have reached the end, Princess.</h2>
+  <p class="sub">But apparently… your kingdom has one final secret.</p>
+  <p class="letter" style="text-align:center;font-family:inherit;font-size:15px">
+   There is an <b>actual surprise</b> waiting for you in the real world. 🎁<br><br>
+   Unfortunately, the Royal Administration has placed one completely unreasonable condition on its release:<br><br>
+   <b>You must contact your brother.</b><br><br>
+   And before he hands over your final surprise, you must tell him <b>just how much you love him.</b> ❤️<br><br>
+   No shortcuts. No negotiations. No royal privileges can override this rule. 😌<br><br>
+   Consider those words your <b>final key.</b>
+  </p>
+  <input id="key" placeholder="ENTER YOUR SECRET KEY" autocomplete="off">
+  <br><button class="btn primary" onclick="unlock()">UNLOCK FINAL SURPRISE</button>
+  <div id="keyMsg" class="small" style="margin-top:15px"></div>
+ </div></div>
+</section>
+
+<section class="screen cinematic" id="final">
+  <div class="warmAura"></div>
+  <div class="center"><div class="wrap premiumReveal">
+    <div class="softKicker">A LITTLE SOMETHING FOR YOU</div>
+
+    <div class="envelopeMark" id="envelopeMark">
+      <div class="envelopePaper"></div>
+      <span>✦</span>
+    </div>
+
+    <div class="revealTitle" id="finalKey">UNLOCKED</div>
+    <div class="typeReveal" id="typeReveal"></div>
+
+    <div class="finalLetter" id="finalLetter">
+      <div class="letterLine"></div>
+      <p>There is something I wanted you to know…</p>
+      <p>This little journey was never really the surprise.</p>
+      <p>The surprise is waiting <i>outside</i> this screen.</p>
+      <p class="warmLine">So go to your brother. ❤️</p>
+      <p>He has something waiting for you — something he wanted to give you himself.</p>
+      <div class="signature">With love,<br><b>Your little secret ✦</b></div>
+    </div>
+
+    <button class="btn premiumBtn finalGo" id="finalGo" onclick="finalPulse()">GO TO YOUR BROTHER</button>
+  </div></div>
+ </section>
+
+<div class="progress"><i id="bar"></i></div>
+<div id="crownOverlay">
+ <div class="crownCard rise">
+  <div class="crownIcon">👑</div>
+  <div class="kicker">PERSONAL ROYAL MESSAGE</div>
+  <h2 id="complimentTitle">For the Princess.</h2>
+  <div id="compliments">Loading something you deserve to hear…</div>
+  <div class="loveMeter"><i id="loveFill"></i></div>
+  <p class="small">Royal Administration has officially determined that you are allowed to smile now.</p>
+  <button class="btn primary" onclick="closeCrown()">I’M SMILING 💗</button>
+ </div>
+</div>
+<div class="roseRain" id="roseRain"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const FINAL_KEY="PRINCESS"; // Change this to any private code you want.
+const state=JSON.parse(localStorage.getItem("didus_spreader_state")||'{"found":[]}');
+const save=()=>localStorage.setItem("didus_spreader_state",JSON.stringify(state));
+const $=id=>document.getElementById(id);
+
+function go(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ $(id).classList.add("active");
+ window.scrollTo(0,0);
+ const pct={boot:0,prologue:8,scan:15,map:30,room:30,complete:78,portal:86,clearance:96,final:100}[id]||30;
+ $("bar").style.width=pct+"%";
+ $("status").textContent={
+  boot:"UNKNOWN TRANSMISSION",prologue:"TRANSMISSION ACCEPTED",scan:"IDENTITY PROTOCOL",
+  map:"KINGDOM ONLINE",room:"ROYAL ARCHIVE",complete:"ROYAL JOURNEY: 100%",
+  portal:"FINAL GATEWAY",clearance:"FINAL CLEARANCE",final:"CLEARANCE GRANTED"
+ }[id]||"ROYAL SYSTEM";
+ $("counter").textContent=state.found.length+" / 7";
+ if(id==="scan")startScan();
+ if(id==="map")buildMap();
+  if(id==="final")startCinematicReveal();
+}
+
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}
+
+const bootLines=[
+"ROYAL SYSTEM // INITIALIZING",
+"Searching for recipient…",
+"Recipient status: <b>ONE OF ONE</b>",
+"Delivery channel: <b>SECRET</b>",
+"Gift classification: <b>ABSURDLY PERSONAL</b>",
+"Warning: ordinary websites are not supported here.",
+"",
+"Transmission ready."
+];
+let bi=0;
+function boot(){
+ if(bi>=bootLines.length){$("bootBtn").style.display="inline-block";return}
+ const line=document.createElement("div");line.innerHTML=bootLines[bi++]+" <span class='cursor'></span>";
+ $("bootText").appendChild(line);setTimeout(boot,430);
+}
+boot();
+$("bootBtn").onclick=()=>go("prologue");
+
+function startScan(){
+ $("scanBtn").style.display="none";let n=0;
+ const texts=["SCANNING…","MATCHING MEMORY…","CHECKING PRINCESS STATUS…","NO DOUBTS DETECTED.","IDENTITY: CONFIRMED ✦"];
+ const timer=setInterval(()=>{
+  $("scanText").textContent=texts[n++]||texts[4];
+  if(n>texts.length){clearInterval(timer);$("scanSub").textContent="Well. That was embarrassingly easy."; $("scanBtn").style.display="inline-block"}
+ },700);
+}
+
+const rooms=[
+ {name:"THE LETTER",tag:"ROYAL LETTERS",body:`<div class="letter">My Princess,<br><br>
+I could have simply sent you a link. That would have been easier.<br>
+But some people deserve more than “here, open this.”<br><br>
+So I built a tiny detour through the universe just to make you stop for a moment and realise that somewhere, someone was thinking about you.<br><br>
+You annoy me. You make me laugh. You test my patience like it is a national sport.<br>
+And somehow, you are still one of the people I would never want life to take away from me.<br><br>
+If this little world makes you smile even once, then every ridiculous line of code was worth it.<div class="sign">— Your brother ❤️</div></div>`},
+ {name:"MEMORY GALAXY",tag:"MEMORY ARCHIVE",body:`<div class="galaxy" id="galaxy"></div><p class="sub">Some memories are not stored in photographs. They are stored in the ridiculous little moments that somehow become important.</p>`},
+ {name:"MOON GARDEN",tag:"NIGHT GARDEN",body:`<div class="moon"></div><div id="garden"><div class="flower" style="left:12%">🌷</div><div class="flower" style="left:29%;animation-delay:.7s">🌸</div><div class="flower" style="left:49%;animation-delay:1.2s">🌙</div><div class="flower" style="left:68%;animation-delay:.3s">🌺</div><div class="flower" style="left:84%;animation-delay:1.5s">✨</div></div><p class="sub">A quiet place for the moments when the world gets too loud.</p>`},
+ {name:"TREASURE VAULT",tag:"ROYAL VAULT",body:`<div class="vault"><div class="dial">♛</div></div><p class="sub">Treasures detected: memories, arguments, laughter, inside jokes, and one extremely persistent brother.</p><button class="btn primary" onclick="vault()">INSPECT VAULT</button>`},
+ {name:"ROYAL MUSIC HALL",tag:"SOUND ARCHIVE",body:`<div class="musicRing" id="musicRing">♫</div><p class="sub">No external music files. Tap the ring for a tiny generated royal signal.</p><button class="btn" onclick="beep()">PLAY ROYAL SIGNAL</button>`},
+ {name:"SECRET ROOM",tag:"CLASSIFIED",body:`<div class="secret" onclick="secretTap()"><div><div style="font-size:50px">◈</div><p class="small">Tap the centre. Something is probably pretending not to be here.</p></div></div><p id="secretMsg" class="sub">The room is locked by an unnecessarily dramatic mechanism.</p>`},
+ {name:"THE DESTINATION",tag:"DELIVERY CORE",body:`<div style="font-size:70px;margin:25px">✦</div><p class="sub">Every path in this kingdom eventually points somewhere.</p><h2 class="gold">HOME.</h2><p class="sub">When all seven fragments are awakened, the real destination will reveal itself.</p>`}
+];
+
+function buildMap(){
+ const area=$("mapArea");area.innerHTML="";
+ const pts=[[50,8],[17,29],[75,25],[25,58],[73,55],[48,77],[86,75]];
+ pts.forEach((p,i)=>{
+  if(i<pts.length-1){
+   const [x,y]=p,[x2,y2]=pts[i+1],dx=x2-x,dy=y2-y,len=Math.hypot(dx,dy);
+   const line=document.createElement("div");line.className="line";line.style.left=x+"%";line.style.top=y+"%";line.style.width=len+"%";line.style.transform=`rotate(${Math.atan2(dy,dx)}rad)`;area.appendChild(line);
+  }
+  const o=document.createElement("div");o.className="orb "+(state.found.includes(i)?"done":"");o.style.left=`calc(${p[0]}% - 41px)`;o.style.top=`calc(${p[1]}% - 41px)`;o.innerHTML=`<span>${i+1}<br>${rooms[i].name.split(" ")[0]}</span>`;o.onclick=()=>openRoom(i);area.appendChild(o);
+ });
+}
+function openRoom(i){
+ if(!state.found.includes(i)){state.found.push(i);save();toast("Fragment awakened ✦")}
+ $("roomKicker").textContent=rooms[i].tag;$("roomTitle").textContent=rooms[i].name;$("roomBody").innerHTML=rooms[i].body;
+ go("room");
+ $("counter").textContent=state.found.length+" / 7";
+}
+function closeRoom(){
+ if(state.found.length===7)go("complete");else go("map");
+}
+function vault(){toast("Vault contents: one very dramatic amount of love ❤️")}
+let secretCount=0;
+function secretTap(){
+ secretCount++;
+ if(secretCount<5)$("secretMsg").textContent=`ACCESS ATTEMPT ${secretCount}/5… The room is judging you.`;
+ else{$("secretMsg").innerHTML="<b class='gold'>SECRET FOUND:</b><br>Being a princess comes with no responsibility whatsoever. Your brother has handled all administrative duties. 👑";beep()}
+}
+function unlock(){
+  const v=$("key").value.trim().toUpperCase();
+  if(v===FINAL_KEY){
+    $("keyMsg").textContent="KEY ACCEPTED ✦ Preparing your message…";
+    $("key").blur();
+    setTimeout(()=>go("final"),650);
+  }else{
+    $("keyMsg").textContent="Clearance denied. Ask your brother for the final key. ❤️";
+  }
+}
+
+function startCinematicReveal(){
+  const screen=$("final");
+  screen.classList.remove("revealDone");
+  $("typeReveal").textContent="";
+  const message="I think you should know something…";
+  let i=0;
+  const typeTimer=setInterval(()=>{
+    $("typeReveal").textContent=message.slice(0,++i)+(i<message.length?"|":"");
+    if(i>=message.length){
+      clearInterval(typeTimer);
+      setTimeout(()=>screen.classList.add("revealDone"),850);
+    }
+  },52);
+}
+
+function finalPulse(){
+  $("finalGo").style.transform="scale(.97)";
+  setTimeout(()=>{$("finalGo").style.transform=""},180);
+  makeItRain();
+}
+
+let audioCtx;
+function beep(){
+ try{
+  audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+  [392,523,659,784].forEach((f,i)=>{
+   const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.frequency.value=f;o.type="sine";
+   g.gain.setValueAtTime(.0001,audioCtx.currentTime+i*.11);g.gain.exponentialRampToValueAtTime(.06,audioCtx.currentTime+i*.11+.03);g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+i*.11+.38);
+   o.connect(g);g.connect(audioCtx.destination);o.start(audioCtx.currentTime+i*.11);o.stop(audioCtx.currentTime+i*.11+.4);
+  });
+  $("musicRing")?.classList.add("play");setTimeout(()=>$("musicRing")?.classList.remove("play"),3000);
+ }catch(e){}
+}
+
+const royalMessages=[
+ "You deserve to be celebrated — not only on special days, but on ordinary days too. 👑",
+ "Official announcement: being this cute and this annoying simultaneously is a rare royal talent. 😌",
+ "Some people make a room brighter. You somehow make an entire world feel warmer. ❤️",
+ "Your crown is not decoration. It is a reminder that you are deeply, ridiculously loved.",
+ "If happiness had a VIP section, your name would already be on the guest list. ✨",
+ "You don't have to be perfect to be precious. You already are.",
+ "A little reminder from your brother: your existence has made my life better than you probably realise. ❤️"
+];
+function royalCompliment(){
+ const msg=royalMessages[Math.floor(Math.random()*royalMessages.length)];
+ $("compliments").textContent=msg;
+ $("loveFill").style.width=(65+Math.floor(Math.random()*36))+"%";
+ $("crownOverlay").classList.add("show");
+ beep();
+}
+function closeCrown(){$("crownOverlay").classList.remove("show")}
+function makeItRain(){
+ const box=$("roseRain"); box.innerHTML="";
+ const icons=["🌹","✨","💗","👑","🌸","💫"];
+ for(let i=0;i<34;i++){
+  const el=document.createElement("span");el.className="petal";el.textContent=icons[Math.floor(Math.random()*icons.length)];
+  el.style.left=Math.random()*100+"%";el.style.animationDuration=(3+Math.random()*4)+"s";el.style.animationDelay=Math.random()*1.5+"s";
+  box.appendChild(el);
+ }
+ setTimeout(()=>box.innerHTML="",7500);
+ toast("Princess treatment activated. 👑");
+ beep();
+}
+
+// Lightweight interactive starfield + touch attraction
+const c=$("stars"),ctx=c.getContext("2d");let W,H,D,stars=[],tx=-9999,ty=-9999;
+function resize(){D=Math.min(devicePixelRatio||1,1.6);W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;ctx.setTransform(D,0,0,D,0,0);stars=Array.from({length:Math.min(150,Math.floor(W*H/7000))},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.2,v:Math.random()*.22+.04,a:Math.random()*.7+.2}))}
+addEventListener("resize",resize);addEventListener("pointermove",e=>{tx=e.clientX;ty=e.clientY});addEventListener("touchmove",e=>{if(e.touches[0]){tx=e.touches[0].clientX;ty=e.touches[0].clientY}},{passive:true});
+function draw(){ctx.clearRect(0,0,W,H);for(const s of stars){s.y+=s.v;if(s.y>H)s.y=0;let dx=s.x-tx,dy=s.y-ty,d=Math.hypot(dx,dy);if(d<100){s.x+=dx/d*1.2;s.y+=dy/d*1.2}
+ ctx.globalAlpha=s.a;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,7);ctx.fill()}requestAnimationFrame(draw)}
+resize();draw();
+</script>
+
+<script>
+/* Private reset: tap the page title area 5 times within 2 seconds. */
+(function(){
+  let taps=0, timer=null;
+  document.addEventListener("click",function(e){
+    const target=e.target.closest("h1,.title,.logo");
+    if(!target) return;
+    taps++;
+    clearTimeout(timer);
+    timer=setTimeout(()=>taps=0,2000);
+    if(taps>=5){
+      taps=0;
+      if(confirm("Reset the journey and start from the beginning?")){
+        try{localStorage.clear();sessionStorage.clear()}catch(e){}
+        location.reload();
+      }
+    }
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  const originalGo = window.go;
+  const stageMap = {boot:0,prologue:1,scan:2,map:3,room:3,complete:5,portal:6,clearance:7,final:7};
+  window.go = function(id){
+    originalGo(id);
+    const n = stageMap[id] ?? 0;
+    document.querySelectorAll(".journey-rail i").forEach((dot,i)=>{
+      dot.classList.toggle("active", i < Math.max(1,n));
+    });
+  };
+  document.querySelectorAll(".journey-rail i").forEach((dot,i)=>{
+    dot.title = "Journey fragment " + (i+1);
+  });
+})();
+</script>
+
+
+<script id="royal-scavenger-js">
+(function(){
+  const curtain=document.createElement("div");
+  curtain.id="royalCurtain";
+  curtain.setAttribute("aria-hidden","true");
+  curtain.innerHTML="<i></i><i></i><div class='curtain-crown'>♛</div>";
+  document.body.appendChild(curtain);
+
+  const seal=document.createElement("div");
+  seal.id="royalSeal";seal.setAttribute("aria-hidden","true");seal.innerHTML="<span>✦</span>";
+  document.body.appendChild(seal);
+
+  const boot=document.getElementById("boot");
+  const stars=boot&&boot.querySelector(".gate-stars");
+  if(stars){
+    for(let i=0;i<65;i++){
+      const s=document.createElement("span");
+      s.style.cssText="position:absolute;border-radius:50%;background:#f2d58f;box-shadow:0 0 10px #f2d58f;";
+      s.style.width=s.style.height=(Math.random()<.82?1:2)+"px";
+      s.style.left=Math.random()*100+"%";s.style.top=Math.random()*100+"%";
+      s.style.opacity=(.15+Math.random()*.55).toFixed(2);
+      s.style.animation=`gateSpark ${3+Math.random()*7}s ease-in-out ${-Math.random()*7}s infinite`;
+      stars.appendChild(s);
+    }
+  }
+
+  const style=document.createElement("style");
+  style.textContent="@keyframes gateSpark{50%{transform:translateY(-18px) scale(1.8);opacity:.9}}";
+  document.head.appendChild(style);
+
+  const originalGo=window.go;
+  if(typeof originalGo==="function"){
+    window.go=function(id){
+      curtain.classList.remove("hide");curtain.classList.add("show");
+      setTimeout(function(){
+        originalGo(id);
+        curtain.classList.remove("show");curtain.classList.add("hide");
+        setTimeout(()=>curtain.classList.remove("hide"),650);
+      },430);
+    };
+  }
+})();
+</script>
+
+</body>
+</html>
